@@ -1,0 +1,25 @@
+name: Uptime Image Build Pipeline
+on:
+  pull_request:
+    types:
+    - opened
+    branches:
+    - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Git pull
+      uses: actions/checkout@v1
+    - name: Docker Package Registry Login
+      uses: azure/docker-login@v1
+      with:
+        login-server: docker.pkg.github.com
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Docker
+      run: |
+        cd microservice-A &&
+        [[ $GITHUB_EVENT_NAME == 'pull_request' ]] && TAG_NAME=$GITHUB_BASE_REF || TAG_NAME=$(sed 's/^refs\/heads\///' <<<$GITHUB_REF | xxd -pu) &&
+        docker build -f Dockerfile -t docker.pkg.github.com/$GITHUB_REPOSITORY/covman:$TAG_NAME . &&
+        docker push docker.pkg.github.com/$GITHUB_REPOSITORY/covman:$TAG_NAME

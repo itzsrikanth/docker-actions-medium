@@ -1,6 +1,6 @@
-FROM node:10.22.0-stretch
+FROM node:12.16.2-alpine3.11
 RUN mkdir /microservice-A
 WORKDIR /microservice-A
-ADD admin-tools .
+ADD . .
 RUN npm i
 CMD ["node", "app.js"]
